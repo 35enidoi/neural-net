@@ -1,8 +1,8 @@
 from __future__ import annotations
-from random import uniform, randint
+
 from math import exp
+from random import uniform
 from typing import Callable
-# from matplotlib import pyplot as plt
 
 
 class NeuralNode:
