@@ -7,6 +7,27 @@ from typing import Callable
 
 class NeuralNode:
     def __init__(self, layer: int) -> None:
+        """
+        Initializes a NeuralNode instance.
+
+        Parameters
+        ----------
+        layer : int
+            The layer index of the neural node in the neural network.
+
+        Attributes
+        ----------
+        layer : int
+            The layer index of the neural node in the neural network.
+        bias : float
+            The bias value of the neural node, initialized randomly between -1 and 1.
+        delta_value : float
+            The delta value used for backpropagation, initialized to 0.
+        value : float
+            The current value of the neural node, initialized to 0.
+        pairent : list of list of [NeuralNode, float]
+            A list of parent nodes and their associated weights.
+        """
         self.layer = layer
         self.bias = uniform(-1, 1)
         self.delta_value: float = 0
@@ -14,12 +35,26 @@ class NeuralNode:
         self.pairent: list[list[NeuralNode, float]] = []
 
     def pairlink(self, pair_node: NeuralNode) -> None:
+        """
+        Establishes a connection between the current neural node and a given pair node.
+
+        Parameters
+        ----------
+        pair_node : NeuralNode
+            The neural node to be linked with the current node.
+
+        Returns
+        -------
+        None
+        """
         self.pairent.append([pair_node, uniform(-1, 1)])
 
     def value_reset(self) -> None:
+        """initialize the value to zero."""
         self.value = 0
 
     def delta_value_reset(self) -> None:
+        """initialize the delta value to zero."""
         self.delta_value = 0
 
 
