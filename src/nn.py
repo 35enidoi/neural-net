@@ -334,30 +334,3 @@ class NeuralNetwork:
         """
         s = NeuralNetwork.sigmoid(x)
         return s * (1 - s)
-
-
-if __name__ == "__main__":
-    neural_net = NeuralNetwork([2, 10, 1])
-    # トレーニング
-
-    def answer_funk(inputs, answer):
-        a, b = inputs
-        c = answer[0]
-        real_answer = (a or b) and not (a and b)
-        return [real_answer], 0.5 * ((real_answer - c) ** 2)
-
-    train_datas = [(randint(0, 1), randint(0, 1)) for _ in range(50000)]
-
-    errors = neural_net.train(train_datas, answer_funk)
-    print(" | ".join(f"{i:.5f}" for i in errors[::100]))
-    print(neural_net.predict(1, 1))
-    print(neural_net.predict(0, 1))
-    print(neural_net.predict(1, 0))
-    print(neural_net.predict(0, 0))
-    print(neural_net)
-
-    # y = errors[::100]
-    # x = list(range(len(y)))
-    # plt.plot(x, y)
-
-    # plt.show()
