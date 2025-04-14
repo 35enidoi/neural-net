@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from math import exp
+from inspect import isclass
 from random import uniform
 from typing import Callable
+
+from src.active_funcs import Sigmoid, AbstractAcitivationAlgorithm
 
 
 class NeuralNode:
@@ -63,17 +65,13 @@ class NeuralNetwork:
     NeuralNetwork class for creating and training a simple feedforward neural network.
     This class implements a neural network with fully connected layers, supporting
     forward propagation for predictions and backpropagation for training. The network
-    uses the sigmoid activation function and supports customizable learning rates.
+    supports customizable learning rates and customizable activation function.
 
     Methods
     -------
     predict(*inputs: int)
         Performs a forward pass through the neural network to generate predictions.
     train(data: list[list[int]], error_func: Callable[[list[int], list[float]], tuple[list[float], float]]) -> list[float]
-    sigmoid(x: float) -> float
-        Computes the sigmoid activation function for a given input.
-    sigmoid_derivative(x: float) -> float
-        Computes the derivative of the sigmoid activation function for a given input.
 
     Notes
     -----
@@ -116,7 +114,7 @@ class NeuralNetwork:
         -----
         Each node in a layer is connected to every node in the next layer using the `pairlink` method.
         """
-
+        self.__activate_func: AbstractAcitivationAlgorithm = Sigmoid
         self.eta = learn_rate
 
         self.layer = len(node_nums)
@@ -128,6 +126,23 @@ class NeuralNetwork:
             for node in self.nodes[layer_pos]:
                 for next_node in self.nodes[layer_pos + 1]:
                     node.pairlink(next_node)
+
+    @property
+    def activate_func(self):
+        return self.__activate_func
+
+    @activate_func.setter
+    def activate_func(self, cls):
+        if isclass(cls):
+            if issubclass(cls, AbstractAcitivationAlgorithm):
+                self.__activate_func = cls
+                return
+        else:
+            if issubclass(type(cls), AbstractAcitivationAlgorithm):
+                self.__activate_func = cls
+                return
+
+        raise ValueError("The activation functions (class) must be a subclass of AbstractAcitivationAlgorithm.")
 
     def predict(self, *inputs: int) -> list[float]:
         """
@@ -156,7 +171,7 @@ class NeuralNetwork:
         - This method resets the values of all nodes in the network before
           performing the forward pass.
         - The forward pass involves propagating the input values through the
-          network layers, applying the sigmoid activation function to each node,
+          network layers, applying the activation function to each node,
           and updating the values of connected nodes based on weights and biases.
         """
         if len(inputs) != len(self.nodes[0]):
@@ -176,7 +191,7 @@ class NeuralNetwork:
             # 入力層以降へ順番に伝搬
             for nodes in self.nodes[1:]:
                 for node in nodes:
-                    node.value = self.sigmoid(node.value + node.bias)
+                    node.value = self.__activate_func.execute(node.value + node.bias)
                     for next_node, weight in node.pairent:
                         next_node.value += node.value * weight
 
@@ -208,7 +223,6 @@ class NeuralNetwork:
         -----
         - This method performs forward propagation to predict the output,
           and backpropagation to adjust the weights and biases of the network.
-        - The `sigmoid_derivative` function is used to compute the derivative of the sigmoid activation function.
         - The learning rate `eta` is used to scale the adjustments to weights and biases.
         """
 
@@ -230,7 +244,8 @@ class NeuralNetwork:
 
             # 出力層のバイアス、それにつながっているエッヂの重さ調整
             for pos, output_node in enumerate(self.nodes[-1]):
-                output_node.delta_value = (output_node.value - real_answer[pos]) * self.sigmoid_derivative(output_node.value)
+                diff = (output_node.value - real_answer[pos])
+                output_node.delta_value = diff * self.__activate_func.execute_derivative(output_node.value)
 
                 output_node.bias -= self.eta * output_node.delta_value
                 for node in self.nodes[-2]:
@@ -240,7 +255,7 @@ class NeuralNetwork:
             for nodes in reversed(self.nodes[1:-1]):
                 for pos, node in enumerate(nodes):
                     error_sums = sum(next_node.delta_value * weight for next_node, weight in node.pairent)
-                    node.delta_value = error_sums * self.sigmoid_derivative(node.value)
+                    node.delta_value = error_sums * self.__activate_func.execute_derivative(node.value)
 
                     node.bias -= self.eta * node.delta_value
                     for before_node in self.nodes[node.layer - 1]:
@@ -291,51 +306,3 @@ class NeuralNetwork:
             return_str += "\n"
 
         return return_str
-
-    @staticmethod
-    def sigmoid(x: float) -> float:
-        """
-        シグモイド関数！！！
-
-        Parameters
-        ----------
-        x : float
-            引数！
-
-        Returns
-        -------
-        float
-            返り値！
-
-        Note
-        ----
-        - シグモイド関数の計算式は`1 / (1 + e ^ -x)`だぞ！
-        """
-        if x >= 0:
-            z = exp(-x)
-            return 1 / (1 + z)
-        else:
-            z = exp(x)
-            return z / (1 + z)
-
-    @staticmethod
-    def sigmoid_derivative(x: float) -> float:
-        """
-        シグモイド関数を微分したやつ！
-
-        Parameters
-        ----------
-        x : float
-            引数！
-
-        Returns
-        -------
-        float
-            返り値！
-
-        Note
-        ----
-        - シグモイド関数を微分したやつの計算式はシグモイド関数をsigとして`sig(x) * (1 - sig(x))`だぞ！
-        """
-        s = NeuralNetwork.sigmoid(x)
-        return s * (1 - s)
