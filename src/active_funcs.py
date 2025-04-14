@@ -133,9 +133,9 @@ class Swish(AbstractAcitivationAlgorithm):
 
     @staticmethod
     def execute_derivative(x):
-        # 内部的に見たらシグモイド関数2回も計算してるけど気にしない...
-        s = Swish.execute(x)
-        return s + Sigmoid.execute(x) * (1.0 - s)
+        r = Sigmoid.execute(x)
+        s = x * r
+        return s + r * (1.0 - s)
 
 
 class Sin(AbstractAcitivationAlgorithm):
