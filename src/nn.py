@@ -116,6 +116,7 @@ class NeuralNetwork:
         """
         self.__activate_func: AbstractAcitivationAlgorithm = Sigmoid
         self.eta = learn_rate
+        self.__is_activate_output: bool = True
 
         self.layer = len(node_nums)
         if self.layer < 2:
@@ -143,6 +144,17 @@ class NeuralNetwork:
                 return
 
         raise ValueError("The activation functions (class) must be a subclass of AbstractAcitivationAlgorithm.")
+
+    @property
+    def is_activate_output(self):
+        return bool(self.__forword_layer_stop)
+
+    @is_activate_output.setter
+    def is_activate_output(self, x):
+        if isinstance(x, bool):
+            self.__is_activate_output = x
+        else:
+            raise ValueError("`is_activate_output` must be bool.")
 
     def predict(self, *inputs: int) -> list[float]:
         """
@@ -189,7 +201,11 @@ class NeuralNetwork:
                     next_node.value += node.value * weight
 
             # 入力層以降へ順番に伝搬
-            for nodes in self.nodes[1:]:
+            if self.__is_activate_output:
+                activate_nodes = self.nodes[1:]
+            else:
+                activate_nodes = self.nodes[1:-1]
+            for nodes in activate_nodes:
                 for node in nodes:
                     node.value = self.__activate_func.execute(node.value + node.bias)
                     for next_node, weight in node.pairent:
