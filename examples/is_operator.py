@@ -6,7 +6,7 @@ add_src_to_path()
 from src.nn import NeuralNetwork
 
 
-def and_error_funtion(input: list[bool], predict_ans: list[float]) -> tuple[list[float], float]:
+def is_error_funtion(input: list[bool], predict_ans: list[float]) -> tuple[list[float], float]:
     a, b = input
     predict = predict_ans[0]
     real_ans = a is b
@@ -25,7 +25,6 @@ if __name__ == "__main__":
 
     # training
     train_num = 100000
-    errors = nn.train(create_training_input(train_num), and_error_funtion)
 
     # check
     print(f"first error late is {errors[0]:.5f}")
