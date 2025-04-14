@@ -4,7 +4,7 @@ from inspect import isclass
 from random import uniform
 from typing import Callable
 
-from src.active_funcs import Sigmoid, AbstractAcitivationAlgorithm
+from src.active_funcs import Sigmoid, AbstractAcitivationAlgorithm, AbstractAcitivationAlgorithmNoStatic
 
 
 class NeuralNode:
@@ -138,7 +138,7 @@ class NeuralNetwork:
                 self.__activate_func = cls
                 return
         else:
-            if issubclass(type(cls), AbstractAcitivationAlgorithm):
+            if issubclass(type(cls), AbstractAcitivationAlgorithmNoStatic):
                 self.__activate_func = cls
                 return
 
