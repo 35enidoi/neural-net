@@ -311,7 +311,12 @@ class NeuralNetwork:
         ----
         - シグモイド関数の計算式は`1 / (1 + e ^ -x)`だぞ！
         """
-        return 1 / (1 + exp(-x))
+        if x >= 0:
+            z = exp(-x)
+            return 1 / (1 + z)
+        else:
+            z = exp(x)
+            return z / (1 + z)
 
     @staticmethod
     def sigmoid_derivative(x: float) -> float:
