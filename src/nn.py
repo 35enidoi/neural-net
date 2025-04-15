@@ -147,7 +147,7 @@ class NeuralNetwork:
 
     @property
     def is_activate_output(self):
-        return bool(self.__forword_layer_stop)
+        return self.__is_activate_output
 
     @is_activate_output.setter
     def is_activate_output(self, x):
