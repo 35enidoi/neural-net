@@ -24,6 +24,38 @@ class AbstractActivationAlgorithmNoStatic(ABC):
         pass
 
 
+# Linear-like functions
+# 線形的(1次関数的)な関数
+
+class Identity(AbstractActivationAlgorithm):
+    @staticmethod
+    def execute(x):
+        return x
+
+    @staticmethod
+    def execute_derivative(x):
+        return 1.0
+
+
+class Absolute(AbstractActivationAlgorithm):
+    @staticmethod
+    def execute(x):
+        return abs(x)
+
+    @staticmethod
+    def execute_derivative(x):
+        if x > 0.0:
+            return 1.0
+        elif x < 0.0:
+            return -1.0
+        else:
+            # x=0の時微分不可能だけどとりあえず1.0ということにしておく...
+            return 1.0
+
+
+# Logistic-like functions
+# 滑らかに変化して一定の値に収束する非線形性を持つ関数
+
 class Sigmoid(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
@@ -84,6 +116,22 @@ class Tanh(AbstractActivationAlgorithm):
         return 1.0 - tanh(x) ** 2
 
 
+# Periodric functions
+# 周期的な関数
+
+class Sin(AbstractActivationAlgorithm):
+    @staticmethod
+    def execute(x):
+        return sin(x)
+
+    @staticmethod
+    def execute_derivative(x):
+        return cos(x)
+
+
+# ReLU-like functions
+# ReLU関数(f(x) = max(0, x))とそれに類似する関数
+
 class ReLU(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
@@ -98,16 +146,6 @@ class ReLU(AbstractActivationAlgorithm):
         else:
             # x=0において導関数ないけど気にしない気にしない...
             return 0.0
-
-
-class Identity(AbstractActivationAlgorithm):
-    @staticmethod
-    def execute(x):
-        return x
-
-    @staticmethod
-    def execute_derivative(x):
-        return 1.0
 
 
 class LReLU(AbstractActivationAlgorithmNoStatic):
@@ -140,16 +178,6 @@ class Swish(AbstractActivationAlgorithm):
         return s + r * (1.0 - s)
 
 
-class Sin(AbstractActivationAlgorithm):
-    @staticmethod
-    def execute(x):
-        return sin(x)
-
-    @staticmethod
-    def execute_derivative(x):
-        return cos(x)
-
-
 class ELU(AbstractActivationAlgorithmNoStatic):
     def __init__(self, alfa: float = 1.0):
         self.alfa = alfa
@@ -176,19 +204,3 @@ class SoftPlus(AbstractActivationAlgorithm):
     def execute_derivative(x):
         # 微分した形はシグモイド関数と同じ
         return Sigmoid.execute(x)
-
-
-class Absolute(AbstractActivationAlgorithm):
-    @staticmethod
-    def execute(x):
-        return abs(x)
-
-    @staticmethod
-    def execute_derivative(x):
-        if x > 0.0:
-            return 1.0
-        elif x < 0.0:
-            return -1.0
-        else:
-            # x=0の時微分不可能だけどとりあえず1.0ということにしておく...
-            return 1.0
