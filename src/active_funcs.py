@@ -162,7 +162,7 @@ class ELU(AbstractActivationAlgorithmNoStatic):
 
     def execute_derivative(self, x):
         if x <= 0.0:
-            return self.execute(x) + self.alfa
+            return self.alfa * exp(x)
         else:
             return 1.0
 
