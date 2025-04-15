@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from math import exp, tanh, sin, cos, log
 
 
-class AbstractAcitivationAlgorithm(ABC):
+class AbstractActivationAlgorithm(ABC):
     @staticmethod
     @abstractmethod
     def execute(x: float) -> float:
@@ -14,7 +14,7 @@ class AbstractAcitivationAlgorithm(ABC):
         pass
 
 
-class AbstractAcitivationAlgorithmNoStatic(ABC):
+class AbstractActivationAlgorithmNoStatic(ABC):
     @abstractmethod
     def execute(self, x: float) -> float:
         pass
@@ -24,7 +24,7 @@ class AbstractAcitivationAlgorithmNoStatic(ABC):
         pass
 
 
-class Sigmoid(AbstractAcitivationAlgorithm):
+class Sigmoid(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         """
@@ -74,7 +74,7 @@ class Sigmoid(AbstractAcitivationAlgorithm):
         return s * (1.0 - s)
 
 
-class Tanh(AbstractAcitivationAlgorithm):
+class Tanh(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         return tanh(x)
@@ -84,7 +84,7 @@ class Tanh(AbstractAcitivationAlgorithm):
         return 1.0 - tanh(x) ** 2
 
 
-class ReLU(AbstractAcitivationAlgorithm):
+class ReLU(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         return max(0, x)
@@ -98,7 +98,7 @@ class ReLU(AbstractAcitivationAlgorithm):
             return 0.0
 
 
-class Identity(AbstractAcitivationAlgorithm):
+class Identity(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         return x
@@ -108,7 +108,7 @@ class Identity(AbstractAcitivationAlgorithm):
         return 1.0
 
 
-class LReLU(AbstractAcitivationAlgorithmNoStatic):
+class LReLU(AbstractActivationAlgorithmNoStatic):
     def __init__(self, alfa: int = 0.01):
         self.alfa = alfa
 
@@ -125,7 +125,7 @@ class LReLU(AbstractAcitivationAlgorithmNoStatic):
             return self.alfa
 
 
-class Swish(AbstractAcitivationAlgorithm):
+class Swish(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         # シグモイド関数実装めんどくさいのでsigmoidから借りる
@@ -138,7 +138,7 @@ class Swish(AbstractAcitivationAlgorithm):
         return s + r * (1.0 - s)
 
 
-class Sin(AbstractAcitivationAlgorithm):
+class Sin(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         return sin(x)
@@ -148,7 +148,7 @@ class Sin(AbstractAcitivationAlgorithm):
         return cos(x)
 
 
-class ELU(AbstractAcitivationAlgorithmNoStatic):
+class ELU(AbstractActivationAlgorithmNoStatic):
     def __init__(self, alfa: float = 1.0):
         self.alfa = alfa
 
@@ -165,7 +165,7 @@ class ELU(AbstractAcitivationAlgorithmNoStatic):
             return 1.0
 
 
-class SoftPlus(AbstractAcitivationAlgorithm):
+class SoftPlus(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         return log(1.0 + exp(x))
@@ -176,7 +176,7 @@ class SoftPlus(AbstractAcitivationAlgorithm):
         return Sigmoid.execute(x)
 
 
-class Absolute(AbstractAcitivationAlgorithm):
+class Absolute(AbstractActivationAlgorithm):
     @staticmethod
     def execute(x):
         return abs(x)

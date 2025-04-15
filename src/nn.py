@@ -4,7 +4,7 @@ from inspect import isclass
 from random import uniform
 from typing import Callable
 
-from src.active_funcs import Sigmoid, AbstractAcitivationAlgorithm, AbstractAcitivationAlgorithmNoStatic
+from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic
 
 
 class NeuralNode:
@@ -114,7 +114,7 @@ class NeuralNetwork:
         -----
         Each node in a layer is connected to every node in the next layer using the `pairlink` method.
         """
-        self.__activate_func: AbstractAcitivationAlgorithm = Sigmoid
+        self.__activate_func: AbstractActivationAlgorithm = Sigmoid
         self.eta = learn_rate
         self.__is_activate_output: bool = True
 
@@ -135,15 +135,15 @@ class NeuralNetwork:
     @activate_func.setter
     def activate_func(self, cls):
         if isclass(cls):
-            if issubclass(cls, AbstractAcitivationAlgorithm):
+            if issubclass(cls, AbstractActivationAlgorithm):
                 self.__activate_func = cls
                 return
         else:
-            if issubclass(type(cls), AbstractAcitivationAlgorithmNoStatic):
+            if issubclass(type(cls), AbstractActivationAlgorithmNoStatic):
                 self.__activate_func = cls
                 return
 
-        raise ValueError("The activation functions (class) must be a subclass of AbstractAcitivationAlgorithm.")
+        raise ValueError("The activation functions (class) must be a subclass of AbstractActivationAlgorithm.")
 
     @property
     def is_activate_output(self):
