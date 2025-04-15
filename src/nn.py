@@ -125,23 +125,8 @@ class NeuralNetwork:
             raise ValueError("At least an input layer and an output layer are required.")
 
         if activate_funcs:
-            # 大きさが正しいか確認
-            if len(activate_funcs) != len(node_nums) - 1:
-                m = "The number of activation functions must match the number of layers minus one (excluding the input layer)."
-                raise ValueError(m)
-
-            # 中の関数クラスがちゃんとしてるか確認
-            for activate_func in activate_funcs:
-                if isclass(activate_func):
-                    # クラスの時(staticな方じゃないとだめ)
-                    if not issubclass(activate_func, AbstractActivationAlgorithm):
-                        raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithm.")
-                else:
-                    # インスタンスの時(どっちでもいい)
-                    if not issubclass(type(activate_func), AbstractActivationAlgorithm | AbstractActivationAlgorithmNoStatic):
-                        raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithmNoStatic.")
-
-            self.__activate_funcs = activate_funcs
+            # 実装めんどくさいのでactivate_funcsのpropertyに丸投げする(おい)
+            self.activate_funcs = activate_funcs
         else:
             if self.layer == 2:
                 # レイヤー数2の時、出力層のみ活性化になるのでidentityじゃなくてsigmoidの方がいい
@@ -167,7 +152,7 @@ class NeuralNetwork:
 
     @activate_funcs.setter
     def activate_funcs(self, x):
-        if len(x) != len(self.nodes) - 1:
+        if len(x) != self.layer - 1:
             m = "The length of activation functions must match the number of layers minus one (excluding the input layer)."
             raise ValueError(m)
 
