@@ -93,6 +93,8 @@ class ReLU(AbstractActivationAlgorithm):
     def execute_derivative(x):
         if x > 0.0:
             return 1.0
+        elif x < 0.0:
+            return 0.0
         else:
             # x=0において導関数ないけど気にしない気にしない...
             return 0.0
@@ -183,8 +185,10 @@ class Absolute(AbstractActivationAlgorithm):
 
     @staticmethod
     def execute_derivative(x):
-        # x=0で微分不可能だけど気にしない...
-        if x >= 0.0:
+        if x > 0.0:
             return 1.0
-        else:
+        elif x < 0.0:
             return -1.0
+        else:
+            # x=0の時微分不可能だけどとりあえず1.0ということにしておく...
+            return 1.0
