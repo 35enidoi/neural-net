@@ -109,7 +109,7 @@ class Identity(AbstractActivationAlgorithm):
 
 
 class LReLU(AbstractActivationAlgorithmNoStatic):
-    def __init__(self, alfa: int = 0.01):
+    def __init__(self, alfa: float = 0.01):
         self.alfa = alfa
 
     def execute(self, x):
