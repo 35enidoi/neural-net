@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
     # training
     train_num = 100000
+    errors = nn.train(create_training_input(train_num), is_error_funtion)
 
     # check
     print(f"first error late is {errors[0]:.5f}")
