@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from inspect import isclass
 from random import uniform
-from typing import Callable
+from typing import Callable, Optional
 
-from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic
+from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic, Identity
 
 
 class NeuralNode:
@@ -82,7 +82,11 @@ class NeuralNetwork:
 
     """
 
-    def __init__(self, node_nums: list[int], learn_rate: float = 0.1) -> None:
+    def __init__(self,
+                 node_nums: list[int],
+                 learn_rate: float = 0.1,
+                 activate_funcs: Optional[list[AbstractActivationAlgorithmNoStatic | AbstractActivationAlgorithm]] = None
+                 ) -> None:
         """
         Initialize a neural network with the specified number of nodes in each layer and learning rate.
 
@@ -114,13 +118,42 @@ class NeuralNetwork:
         -----
         Each node in a layer is connected to every node in the next layer using the `pairlink` method.
         """
-        self.__activate_func: AbstractActivationAlgorithm = Sigmoid
         self.eta = learn_rate
-        self.__is_activate_output: bool = True
 
         self.layer = len(node_nums)
         if self.layer < 2:
             raise ValueError("At least an input layer and an output layer are required.")
+
+        if activate_funcs:
+            # 大きさが正しいか確認
+            if len(activate_funcs) != len(node_nums) - 1:
+                m = "The number of activation functions must match the number of layers minus one (excluding the input layer)."
+                raise ValueError(m)
+
+            # 中の関数クラスがちゃんとしてるか確認
+            for activate_func in activate_funcs:
+                if isclass(activate_func):
+                    # クラスの時(staticな方じゃないとだめ)
+                    if not issubclass(activate_func, AbstractActivationAlgorithm):
+                        raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithm.")
+                else:
+                    # インスタンスの時(どっちでもいい)
+                    if not issubclass(type(activate_func), AbstractActivationAlgorithm | AbstractActivationAlgorithmNoStatic):
+                        raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithmNoStatic.")
+
+            self.__activate_funcs = activate_funcs
+        else:
+            if self.layer == 2:
+                # レイヤー数2の時、出力層のみ活性化になるのでidentityじゃなくてsigmoidの方がいい
+                self.__activate_funcs = [Sigmoid]
+            else:
+                self.__activate_funcs = []
+
+                # 中間層にシグモイド関数を追加
+                for _ in range(self.layer - 2):
+                    self.__activate_funcs.append(Sigmoid)
+                # 出力層は恒等関数
+                self.__activate_funcs.append(Identity)
 
         self.nodes = [[NeuralNode(layer) for _ in range(num)] for layer, num in enumerate(node_nums)]
         for layer_pos in range(self.layer - 1):
@@ -129,32 +162,27 @@ class NeuralNetwork:
                     node.pairlink(next_node)
 
     @property
-    def activate_func(self):
-        return self.__activate_func
+    def activate_funcs(self):
+        return self.__activate_funcs.copy()
 
-    @activate_func.setter
-    def activate_func(self, cls):
-        if isclass(cls):
-            if issubclass(cls, AbstractActivationAlgorithm):
-                self.__activate_func = cls
-                return
-        else:
-            if issubclass(type(cls), AbstractActivationAlgorithmNoStatic):
-                self.__activate_func = cls
-                return
+    @activate_funcs.setter
+    def activate_funcs(self, x):
+        if len(x) != len(self.nodes) - 1:
+            m = "The length of activation functions must match the number of layers minus one (excluding the input layer)."
+            raise ValueError(m)
 
-        raise ValueError("The activation functions (class) must be a subclass of AbstractActivationAlgorithm.")
+        for activate_func in x:
+            if isclass(activate_func):
+                # クラスの時(staticな方じゃないとだめ)
+                if not issubclass(activate_func, AbstractActivationAlgorithm):
+                    raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithm.")
+            else:
+                # インスタンスの時(どっちでもいい)
+                if not issubclass(type(activate_func), AbstractActivationAlgorithm | AbstractActivationAlgorithmNoStatic):
+                    raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithmNoStatic.")
 
-    @property
-    def is_activate_output(self):
-        return self.__is_activate_output
-
-    @is_activate_output.setter
-    def is_activate_output(self, x):
-        if isinstance(x, bool):
-            self.__is_activate_output = x
-        else:
-            raise ValueError("`is_activate_output` must be bool.")
+        # ここまでこれたなら確認完了
+        self.__activate_funcs = x
 
     def predict(self, *inputs: int) -> list[float]:
         """
@@ -201,13 +229,10 @@ class NeuralNetwork:
                     next_node.value += node.value * weight
 
             # 入力層以降へ順番に伝搬
-            if self.__is_activate_output:
-                activate_nodes = self.nodes[1:]
-            else:
-                activate_nodes = self.nodes[1:-1]
-            for nodes in activate_nodes:
+            for nodes in self.nodes[1:]:
                 for node in nodes:
-                    node.value = self.__activate_func.execute(node.value + node.bias)
+                    # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
+                    node.value = self.__activate_funcs[node.layer - 1].execute(node.value + node.bias)
                     for next_node, weight in node.pairent:
                         next_node.value += node.value * weight
 
@@ -261,7 +286,8 @@ class NeuralNetwork:
             # 出力層のバイアス、それにつながっているエッヂの重さ調整
             for pos, output_node in enumerate(self.nodes[-1]):
                 diff = (output_node.value - real_answer[pos])
-                output_node.delta_value = diff * self.__activate_func.execute_derivative(output_node.value)
+                # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
+                output_node.delta_value = diff * self.__activate_funcs[node.layer - 1].execute_derivative(output_node.value)
 
                 output_node.bias -= self.eta * output_node.delta_value
                 for node in self.nodes[-2]:
@@ -271,7 +297,8 @@ class NeuralNetwork:
             for nodes in reversed(self.nodes[1:-1]):
                 for pos, node in enumerate(nodes):
                     error_sums = sum(next_node.delta_value * weight for next_node, weight in node.pairent)
-                    node.delta_value = error_sums * self.__activate_func.execute_derivative(node.value)
+                    # node.layer - 1の部分は上を参照
+                    node.delta_value = error_sums * self.__activate_funcs[node.layer - 1].execute_derivative(node.value)
 
                     node.bias -= self.eta * node.delta_value
                     for before_node in self.nodes[node.layer - 1]:
