@@ -49,8 +49,6 @@ if __name__ == "__main__":
         actual = 2.0 * x + 3.0
         print(f"x: {x}, Predicted: {predicted:.5f}, Actual: {actual:.5f}")
 
-    print(nn)
-
     if plt:
         # matplotlibがある場合表示する
         # Plot the error rates
