@@ -8,6 +8,9 @@ from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActiv
 from src._exception_messages import NNExceptionMessages
 
 
+__all__ = ["NeuralNetwork", "NeuralNode"]
+
+
 class NeuralNode:
     def __init__(self, layer: int) -> None:
         """
