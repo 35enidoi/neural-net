@@ -5,6 +5,7 @@ from random import uniform
 from typing import Callable, Optional
 
 from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic, Identity
+from src._exception_messages import NNExceptionMessages
 
 
 class NeuralNode:
@@ -122,7 +123,7 @@ class NeuralNetwork:
 
         self.layer = len(node_nums)
         if self.layer < 2:
-            raise ValueError("At least an input layer and an output layer are required.")
+            raise ValueError(NNExceptionMessages.NN_INIT_LAYER_NOM)
 
         if activate_funcs:
             # 実装めんどくさいのでactivate_funcsのpropertyに丸投げする(おい)
@@ -153,18 +154,17 @@ class NeuralNetwork:
     @activate_funcs.setter
     def activate_funcs(self, x):
         if len(x) != self.layer - 1:
-            m = "The length of activation functions must match the number of layers minus one (excluding the input layer)."
-            raise ValueError(m)
+            raise ValueError(NNExceptionMessages.NN_ACV_LAY_NOM)
 
         for activate_func in x:
             if isclass(activate_func):
                 # クラスの時(staticな方じゃないとだめ)
                 if not issubclass(activate_func, AbstractActivationAlgorithm):
-                    raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithm.")
+                    raise ValueError(NNExceptionMessages.NN_ACV_FUNC_NOM)
             else:
                 # インスタンスの時(どっちでもいい)
                 if not issubclass(type(activate_func), AbstractActivationAlgorithm | AbstractActivationAlgorithmNoStatic):
-                    raise ValueError("Activation function must be a subclass of AbstractActivationAlgorithmNoStatic.")
+                    raise ValueError(NNExceptionMessages.NN_ACV_FUNC_INSTANCE_NOM)
 
         # ここまでこれたなら確認完了
         self.__activate_funcs = x
@@ -200,7 +200,7 @@ class NeuralNetwork:
           and updating the values of connected nodes based on weights and biases.
         """
         if len(inputs) != len(self.nodes[0]):
-            raise ValueError("The number of inputs must match the number of input nodes.")
+            raise ValueError(NNExceptionMessages.NN_PREDICT_INPUT_NOM)
         else:
             # 初期化
             for nodes in self.nodes:
