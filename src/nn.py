@@ -75,7 +75,7 @@ class NeuralNetwork:
     -------
     predict(*inputs: int)
         Performs a forward pass through the neural network to generate predictions.
-    train(data: list[list[int]], error_func: Callable[[list[int], list[float]], tuple[list[float], float]]) -> list[float]
+    train(data: list[list[int]], evaluation_func: Callable[[list[int], list[float]], tuple[list[float], float]]) -> list[float]
 
     Notes
     -----
@@ -229,7 +229,7 @@ class NeuralNetwork:
 
     def train(self,
               data: list[list[int]],
-              error_func: Callable[[list[int], list[float]], tuple[list[float], float]]
+              evaluation_func: Callable[[list[int], list[float]], tuple[list[float], float]]
               ) -> list[float]:
         """
         Trains the neural network using the provided data and error function.
@@ -238,7 +238,7 @@ class NeuralNetwork:
         ----------
         data : list of list of int
             A list of input data where each element is a list of integers representing the input features.
-        error_func : Callable[[list[int], list[float]], tuple[list[float], float]]
+        evaluation_func : Callable[[list[int], list[float]], tuple[list[float], float]]
             A function that calculates the error and provides the expected output.
             It takes the input data and the predicted output as arguments and returns
             a tuple containing the expected output and the error value.
@@ -268,7 +268,7 @@ class NeuralNetwork:
                     node.delta_value_reset()
 
             # 教師による答えとエラーの大きさを取得
-            real_answer, error = error_func(inputs, ans)
+            real_answer, error = evaluation_func(inputs, ans)
             error_list.append(error)
 
             # 出力層のバイアス、それにつながっているエッヂの重さ調整
