@@ -1,5 +1,6 @@
 from random import randint
 
+from _util import show_error
 from _add_src_to_path import add_src_to_path
 add_src_to_path()
 
@@ -31,3 +32,5 @@ if __name__ == "__main__":
     print(nn)  # 改行
     for a, b in ((1, 1), (1, 0), (0, 1), (0, 0)):
         print(f"{a} and {b}, predict: {nn.predict(a, b)[0]:.5f}, answer: {a and b}")
+
+    show_error(errors, step=500)

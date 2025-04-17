@@ -5,6 +5,7 @@ try:
 except ImportError:
     plt = None
 
+from _util import show_error
 from _add_src_to_path import add_src_to_path
 add_src_to_path()
 
@@ -47,17 +48,10 @@ if __name__ == "__main__":
         actual = 2.0 * x + 3.0
         print(f"x: {x}, Predicted: {predicted:.5f}, Actual: {actual:.5f}")
 
-    if plt:
-        # matplotlibがある場合表示する
-        # Plot the error rates
-        step = 10
-        avg_errors = [sum(errors[i:i+step]) / step for i in range(0, len(errors), step)]
-        plt.plot(range(len(avg_errors)), avg_errors)
-        plt.xlabel("Step (x10)")
-        plt.ylabel("Average Error")
-        plt.title(f"Average Error per {step} Steps")
-        plt.show()
+    #  エラーの表示
+    show_error(errors, step=10)
 
+    if plt:
         # 実際に表示してテストする
         # Plot the actual function and the neural network's approximation
         x_values = [x / 10.0 for x in range(-100, 101)]  # Generate x values from -10 to 10
