@@ -9,18 +9,17 @@ from _add_src_to_path import add_src_to_path
 add_src_to_path()
 
 from src.nn import NeuralNetwork
-from src.active_funcs import ReLU, Identity
+from src.active_funcs import Identity
+from src.loss_funcs import HuberLoss
 
 
 # このファイル全部copilotに書いてもらった
 # すごくない？
 
-def regression_error_function(input: list[float], predict_ans: list[float]) -> tuple[list[float], float]:
+def regression_error_function(input: list[float]) -> tuple[list[float], float]:
     x = input[0]
     real_ans = 2.0 * x + 3.0  # Ground truth: y = 2x + 3
-    predict = predict_ans[0]
-    error = 0.5 * (predict - real_ans) ** 2  # Mean squared error
-    return [real_ans], error
+    return [real_ans,]
 
 
 def create_training_input(length: int) -> list[list[float]]:
@@ -28,14 +27,13 @@ def create_training_input(length: int) -> list[list[float]]:
 
 
 if __name__ == "__main__":
-    # ReLU系はなんか学習率をかなり下げないとバグりやすい
-    # 遅い学習率のためにレイヤーのノード数爆上げしておく
-    # input: 2 -> 1 middle -> output: 1
-    # 1 middle layer (16,)
-    nn = NeuralNetwork([1, 16, 1], 0.00001, [ReLU, Identity])
+    # input: 2 -> output: 1
+    # no middle layer
+    # activate function: Identity(恒等関数)
+    nn = NeuralNetwork([1, 1], learn_rate=0.01, activate_funcs=[Identity], loss_func=HuberLoss())
 
     # Training
-    train_num = 10000
+    train_num = 1000
     errors = nn.train(create_training_input(train_num), regression_error_function)
 
     # Check training results
@@ -52,7 +50,7 @@ if __name__ == "__main__":
     if plt:
         # matplotlibがある場合表示する
         # Plot the error rates
-        step = 100
+        step = 10
         avg_errors = [sum(errors[i:i+step]) / step for i in range(0, len(errors), step)]
         plt.plot(range(len(avg_errors)), avg_errors)
         plt.xlabel("Step (x10)")

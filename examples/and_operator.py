@@ -6,12 +6,10 @@ add_src_to_path()
 from src.nn import NeuralNetwork
 
 
-def and_error_funtion(input: list[bool], predict_ans: list[float]) -> tuple[list[float], float]:
+def and_error_funtion(input: list[bool]) -> list[float]:
     a, b = input
-    predict = predict_ans[0]
     real_ans = a and b
-    error = 0.5 * (predict - real_ans) ** 2
-    return [real_ans,], error
+    return [real_ans,]
 
 
 def create_training_input(length: int) -> tuple[bool, bool]:
@@ -30,6 +28,6 @@ if __name__ == "__main__":
     # check
     print(f"first error late is {errors[0]:.5f}")
     print(f"final error late is {errors[-1]:.5f}")
-    print()  # 改行
+    print(nn)  # 改行
     for a, b in ((1, 1), (1, 0), (0, 1), (0, 0)):
         print(f"{a} and {b}, predict: {nn.predict(a, b)[0]:.5f}, answer: {a and b}")

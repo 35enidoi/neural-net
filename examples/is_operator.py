@@ -7,12 +7,10 @@ from src.nn import NeuralNetwork
 from src.active_funcs import Tanh, Identity  # tanhを活性化関数として使う
 
 
-def is_error_funtion(input: list[bool], predict_ans: list[float]) -> tuple[list[float], float]:
+def is_error_funtion(input: list[bool]) -> list[float]:
     a, b = input
-    predict = predict_ans[0]
     real_ans = a is b
-    error = 0.5 * (predict - real_ans) ** 2
-    return [real_ans,], error
+    return [real_ans,]
 
 
 def create_training_input(length: int) -> tuple[bool, bool]:
@@ -25,7 +23,6 @@ if __name__ == "__main__":
     # input: 2 -> 1 middle -> output: 1
     # 1 middle layer (8,)
     nn = NeuralNetwork([2, 8, 1], activate_funcs=[Tanh, Identity])
-    print(nn.activate_funcs)
 
     # training
     train_num = 10000
