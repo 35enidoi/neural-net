@@ -4,6 +4,7 @@ from inspect import isclass
 from random import uniform
 from typing import Callable, Optional
 
+from src.loss_funcs import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic, MeanSquaredError
 from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic, Identity
 from src._exception_messages import NNExceptionMessages
 
@@ -75,7 +76,7 @@ class NeuralNetwork:
     -------
     predict(*inputs: int)
         Performs a forward pass through the neural network to generate predictions.
-    train(data: list[list[int]], evaluation_func: Callable[[list[int], list[float]], tuple[list[float], float]]) -> list[float]
+    train(data: list[list[int]], answer_func: Callable[[list[int], list[float]], tuple[list[float], float]]) -> list[float]
 
     Notes
     -----
@@ -89,7 +90,8 @@ class NeuralNetwork:
     def __init__(self,
                  node_nums: list[int],
                  learn_rate: float = 0.1,
-                 activate_funcs: Optional[list[AbstractActivationAlgorithmNoStatic | AbstractActivationAlgorithm]] = None
+                 activate_funcs: Optional[list[AbstractActivationAlgorithmNoStatic | AbstractActivationAlgorithm]] = None,
+                 loss_func: AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic = MeanSquaredError
                  ) -> None:
         """
         Initialize a neural network with the specified number of nodes in each layer and learning rate.
@@ -122,12 +124,15 @@ class NeuralNetwork:
         -----
         Each node in a layer is connected to every node in the next layer using the `pairlink` method.
         """
+        # 学習率(eta)
         self.eta = learn_rate
 
+        # レイヤー数の確認
         self.layer = len(node_nums)
         if self.layer < 2:
             raise ValueError(NNExceptionMessages.NN_INIT_LAYER_NOM)
 
+        # 活性化関数のチェック
         if activate_funcs:
             # 実装めんどくさいのでactivate_funcsのpropertyに丸投げする(おい)
             self.activate_funcs = activate_funcs
@@ -143,6 +148,9 @@ class NeuralNetwork:
                     self.__activate_funcs.append(Sigmoid)
                 # 出力層は恒等関数
                 self.__activate_funcs.append(Identity)
+
+        # 損失関数のチェック
+        self.__loss_function = loss_func
 
         self.nodes = [[NeuralNode(layer) for _ in range(num)] for layer, num in enumerate(node_nums)]
         for layer_pos in range(self.layer - 1):
@@ -171,6 +179,22 @@ class NeuralNetwork:
 
         # ここまでこれたなら確認完了
         self.__activate_funcs = x
+
+    @property
+    def loss_function(self):
+        return self.__loss_function
+
+    @loss_function.setter
+    def loss_function(self, x):
+        if isclass(x):
+            if not issubclass(x, AbstractLossAlgorithm):
+                raise ValueError()
+        else:
+            if not issubclass(type(x), AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic):
+                raise ValueError()
+
+        # ここまでこれたなら確認完了
+        self.__loss_function: AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic = x
 
     def predict(self, *inputs: int) -> list[float]:
         """
@@ -229,7 +253,7 @@ class NeuralNetwork:
 
     def train(self,
               data: list[list[int]],
-              evaluation_func: Callable[[list[int], list[float]], tuple[list[float], float]]
+              answer_func: Callable[[list[int]], list[float]],
               ) -> list[float]:
         """
         Trains the neural network using the provided data and error function.
@@ -238,7 +262,7 @@ class NeuralNetwork:
         ----------
         data : list of list of int
             A list of input data where each element is a list of integers representing the input features.
-        evaluation_func : Callable[[list[int], list[float]], tuple[list[float], float]]
+        answer_func : Callable[[list[int], list[float]], tuple[list[float], float]]
             A function that calculates the error and provides the expected output.
             It takes the input data and the predicted output as arguments and returns
             a tuple containing the expected output and the error value.
@@ -262,18 +286,20 @@ class NeuralNetwork:
             ans = self.predict(*inputs)
 
             # 誤差逆伝搬(反映)
-            # 初期化デルタ値を初期化
+            # デルタ値を初期化
             for nodes in self.nodes:
                 for node in nodes:
                     node.delta_value_reset()
 
-            # 教師による答えとエラーの大きさを取得
-            real_answer, error = evaluation_func(inputs, ans)
-            error_list.append(error)
+            # 教師の答えを持ってくる
+            real_answer = answer_func(inputs)
+
+            # エラー値追加
+            error_list.append(self.__loss_function.execute(ans, real_answer))
 
             # 出力層のバイアス、それにつながっているエッヂの重さ調整
             for pos, output_node in enumerate(self.nodes[-1]):
-                diff = (output_node.value - real_answer[pos])
+                diff = self.__loss_function.execute_derivative(ans[pos], real_answer[pos])
                 # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
                 output_node.delta_value = diff * self.__activate_funcs[node.layer - 1].execute_derivative(output_node.value)
 
