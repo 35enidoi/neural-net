@@ -5,8 +5,7 @@ try:
 except ImportError:
     plt = None
 
-from _util import show_error
-from _add_src_to_path import add_src_to_path
+from _util import show_error, add_src_to_path
 add_src_to_path()
 
 from src.nn import NeuralNetwork
