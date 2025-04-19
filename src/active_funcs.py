@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from math import exp, tanh, sin, cos, log
+from math import exp, tanh, sin, cos, log, sqrt
 
 __all__ = [
     "AbstractActivationAlgorithm", "AbstractActivationAlgorithmNoStatic",  # Abstracts
@@ -122,6 +122,16 @@ class Tanh(AbstractActivationAlgorithm):
     @staticmethod
     def execute_derivative(x):
         return 1.0 - tanh(x) ** 2
+
+
+class SoftSign(AbstractActivationAlgorithm):
+    @staticmethod
+    def execute(x):
+        return x / (1 + abs(x))
+
+    @staticmethod
+    def execute_derivative(x):
+        return 1 / sqrt(1 + abs(x))
 
 
 # Periodric functions
