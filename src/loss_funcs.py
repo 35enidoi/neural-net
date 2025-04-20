@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from math import tanh, cosh, log
 
 
 class AbstractLossAlgorithm(ABC):
@@ -86,3 +87,17 @@ class HuberLoss(AbstractLossAlgorithmNoStatic):
             return -1
         else:
             return 0
+
+
+class LogCoshLoss(AbstractLossAlgorithm):
+    @staticmethod
+    def execute(predict, answer):
+        error = 0
+        for p, a in zip(predict, answer):
+            error += log(cosh(p - a))
+
+        return error
+
+    @staticmethod
+    def execute_derivative(predict, answer):
+        return tanh(predict - answer)
