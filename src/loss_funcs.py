@@ -68,7 +68,7 @@ class HuberLoss(AbstractLossAlgorithmNoStatic):
         for p, a in zip(predict, answer):
             absolute_error = abs(a - p)
             if absolute_error <= self.delta:
-                error += 0.5 * (absolute_error)
+                error += 0.5 * (absolute_error ** 2)
             else:
                 error += self.delta * (absolute_error - (0.5 * self.delta))
 
