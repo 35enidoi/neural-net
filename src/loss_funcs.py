@@ -32,7 +32,7 @@ class MeanSquaredError(AbstractLossAlgorithm):
         for a, b in zip(predict, answer):
             error += (a - b) ** 2
 
-        return error
+        return error / len(predict)
 
     @staticmethod
     def execute_derivative(predict, answer):
@@ -44,13 +44,13 @@ class MeanAbsoluteError(AbstractLossAlgorithm):
     @staticmethod
     def execute(predict, answer):
         error = sum(abs(p - a) for p, a in zip(predict, answer))
-        return error
+        return error / len(predict)
 
     @staticmethod
     def execute_derivative(predict, answer):
-        if (error := (predict - answer)) > 0:
+        if predict > answer:
             return 1
-        elif error < 0:
+        elif predict < answer:
             return -1
         else:
             # 本当は0で微分不可能だけど0ということにしておく
@@ -67,8 +67,8 @@ class HuberLoss(AbstractLossAlgorithmNoStatic):
 
         for p, a in zip(predict, answer):
             absolute_error = abs(a - p)
-            if (absolute_error := abs(a - p)) <= self.delta:
-                error += 0.5 * (absolute_error ** 2)
+            if absolute_error <= self.delta:
+                error += 0.5 * (absolute_error)
             else:
                 error += self.delta * (absolute_error - (0.5 * self.delta))
 
@@ -81,6 +81,7 @@ class HuberLoss(AbstractLossAlgorithmNoStatic):
             return self.delta * self.__sign(predict - answer)
 
     def __sign(self, x: float):
+        """サイン関数(数字が正か負か調べて返すだけ)"""
         if x > 0:
             return 1
         elif x < 0:
@@ -90,6 +91,7 @@ class HuberLoss(AbstractLossAlgorithmNoStatic):
 
 
 class LogCoshLoss(AbstractLossAlgorithm):
+    """ログコス損失関数"""
     @staticmethod
     def execute(predict, answer):
         error = 0
