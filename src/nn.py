@@ -251,6 +251,28 @@ class NeuralNetwork:
             # 出力層の値をリスト化して返す
             return [node.value for node in self.nodes[-1]]
 
+    def _back_propagation(self, predict: list[float], real_answer: list[float]) -> None:
+        # 出力層のバイアス、それにつながっているエッヂの重さ調整
+        for pos, output_node in enumerate(self.nodes[-1]):
+            diff = self.__loss_function.execute_derivative(predict[pos], real_answer[pos])
+            # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
+            output_node.delta_value = diff * self.__activate_funcs[-1].execute_derivative(output_node.value)
+
+            output_node.bias -= self.eta * output_node.delta_value
+            for node in self.nodes[-2]:
+                node.pairent[pos][1] -= self.eta * output_node.delta_value * node.value
+
+        # 入力層と出力層を除いた中間層についてバイアスとエッヂの重さ調整
+        for nodes in reversed(self.nodes[1:-1]):
+            for pos, node in enumerate(nodes):
+                error_sums = sum(next_node.delta_value * weight for next_node, weight in node.pairent)
+                # node.layer - 1の部分は上を参照
+                node.delta_value = error_sums * self.__activate_funcs[node.layer - 1].execute_derivative(node.value)
+
+                node.bias -= self.eta * node.delta_value
+                for before_node in self.nodes[node.layer - 1]:
+                    before_node.pairent[pos][1] -= self.eta * node.delta_value * node.value
+
     def train(self,
               data: list[list[int]],
               answer_func: Callable[[list[int]], list[float]],
@@ -285,7 +307,6 @@ class NeuralNetwork:
             # 順伝搬(予測)
             ans = self.predict(*inputs)
 
-            # 誤差逆伝搬(反映)
             # デルタ値を初期化
             for nodes in self.nodes:
                 for node in nodes:
@@ -297,26 +318,13 @@ class NeuralNetwork:
             # エラー値追加
             error_list.append(self.__loss_function.execute(ans, real_answer))
 
-            # 出力層のバイアス、それにつながっているエッヂの重さ調整
-            for pos, output_node in enumerate(self.nodes[-1]):
-                diff = self.__loss_function.execute_derivative(ans[pos], real_answer[pos])
-                # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
-                output_node.delta_value = diff * self.__activate_funcs[node.layer - 1].execute_derivative(output_node.value)
+            # デルタ値を初期化
+            for nodes in self.nodes:
+                for node in nodes:
+                    node.delta_value_reset()
 
-                output_node.bias -= self.eta * output_node.delta_value
-                for node in self.nodes[-2]:
-                    node.pairent[pos][1] -= self.eta * output_node.delta_value * node.value
-
-            # 入力層と出力層を除いた中間層についてバイアスとエッヂの重さ調整
-            for nodes in reversed(self.nodes[1:-1]):
-                for pos, node in enumerate(nodes):
-                    error_sums = sum(next_node.delta_value * weight for next_node, weight in node.pairent)
-                    # node.layer - 1の部分は上を参照
-                    node.delta_value = error_sums * self.__activate_funcs[node.layer - 1].execute_derivative(node.value)
-
-                    node.bias -= self.eta * node.delta_value
-                    for before_node in self.nodes[node.layer - 1]:
-                        before_node.pairent[pos][1] -= self.eta * node.delta_value * node.value
+            # 誤差逆伝搬
+            self._back_propagation(ans, real_answer)
 
         return error_list
 
