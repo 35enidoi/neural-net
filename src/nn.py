@@ -14,27 +14,6 @@ __all__ = ["NeuralNetwork", "NeuralNode"]
 
 class NeuralNode:
     def __init__(self, layer: int) -> None:
-        """
-        Initializes a NeuralNode instance.
-
-        Parameters
-        ----------
-        layer : int
-            The layer index of the neural node in the neural network.
-
-        Attributes
-        ----------
-        layer : int
-            The layer index of the neural node in the neural network.
-        bias : float
-            The bias value of the neural node, initialized randomly between -1 and 1.
-        delta_value : float
-            The delta value used for backpropagation, initialized to 0.
-        value : float
-            The current value of the neural node, initialized to 0.
-        pairent : list of list of [NeuralNode, float]
-            A list of parent nodes and their associated weights.
-        """
         self.layer = layer
         self.bias = uniform(-1, 1)
         self.delta_value: float = 0
@@ -42,18 +21,6 @@ class NeuralNode:
         self.pairent: list[list[NeuralNode, float]] = []
 
     def pairlink(self, pair_node: NeuralNode) -> None:
-        """
-        Establishes a connection between the current neural node and a given pair node.
-
-        Parameters
-        ----------
-        pair_node : NeuralNode
-            The neural node to be linked with the current node.
-
-        Returns
-        -------
-        None
-        """
         self.pairent.append([pair_node, uniform(-1, 1)])
 
     def value_reset(self) -> None:
@@ -66,64 +33,12 @@ class NeuralNode:
 
 
 class NeuralNetwork:
-    """
-    NeuralNetwork class for creating and training a simple feedforward neural network.
-    This class implements a neural network with fully connected layers, supporting
-    forward propagation for predictions and backpropagation for training. The network
-    supports customizable learning rates and customizable activation function.
-
-    Methods
-    -------
-    predict(*inputs: int)
-        Performs a forward pass through the neural network to generate predictions.
-    train(data: list[list[int]], answer_func: Callable[[list[int], list[float]], tuple[list[float], float]]) -> list[float]
-
-    Notes
-    -----
-    - The network requires at least two layers: an input layer and an output layer.
-    - Each node in a layer is connected to every node in the next layer.
-    - The `train` method uses backpropagation to adjust weights and biases based on
-      the error calculated by the provided error function.
-
-    """
-
     def __init__(self,
                  node_nums: list[int],
                  learn_rate: float = 0.1,
                  activate_funcs: Optional[list[AbstractActivationAlgorithmNoStatic | AbstractActivationAlgorithm]] = None,
                  loss_func: AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic = MeanSquaredError
                  ) -> None:
-        """
-        Initialize a neural network with the specified number of nodes in each layer and learning rate.
-
-        Parameters
-        ----------
-        node_nums : list of int
-            A list where each element represents the number of nodes in a layer.
-            The length of the list determines the number of layers in the network.
-            Must have at least two elements (input and output layers).
-        learn_rate : float, optional
-            The learning rate for the neural network. Defaults to 0.1.
-
-        Raises
-        ------
-        ValueError
-            If the number of layers (length of `node_nums`) is less than 2.
-
-        Attributes
-        ----------
-        eta : float
-            The learning rate for the neural network.
-        layer : int
-            The number of layers in the neural network.
-        nodes : list of list of NeuralNode
-            A nested list where each sublist contains the nodes of a layer.
-            Each node is an instance of the `NeuralNode` class.
-
-        Notes
-        -----
-        Each node in a layer is connected to every node in the next layer using the `pairlink` method.
-        """
         # 学習率(eta)
         self.eta = learn_rate
 
@@ -197,35 +112,6 @@ class NeuralNetwork:
         self.__loss_function: AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic = x
 
     def predict(self, *inputs: int) -> list[float]:
-        """
-        Perform a forward pass through the neural network to generate predictions.
-
-        Parameters
-        ----------
-        *inputs : int
-            Variable-length input arguments representing the input values to the
-            neural network. The number of inputs must match the number of input
-            nodes in the network.
-
-        Returns
-        -------
-        list of float
-            A list of output values from the neural network, corresponding to the
-            values of the output nodes after the forward pass.
-
-        Raises
-        ------
-        ValueError
-            If the number of inputs does not match the number of input nodes.
-
-        Notes
-        -----
-        - This method resets the values of all nodes in the network before
-          performing the forward pass.
-        - The forward pass involves propagating the input values through the
-          network layers, applying the activation function to each node,
-          and updating the values of connected nodes based on weights and biases.
-        """
         if len(inputs) != len(self.nodes[0]):
             raise ValueError(NNExceptionMessages.NN_PREDICT_INPUT_NOM)
         else:
@@ -277,30 +163,6 @@ class NeuralNetwork:
               data: list[list[int]],
               answer_func: Callable[[list[int]], list[float]],
               ) -> list[float]:
-        """
-        Trains the neural network using the provided data and error function.
-
-        Parameters
-        ----------
-        data : list of list of int
-            A list of input data where each element is a list of integers representing the input features.
-        answer_func : Callable[[list[int], list[float]], tuple[list[float], float]]
-            A function that calculates the error and provides the expected output.
-            It takes the input data and the predicted output as arguments and returns
-            a tuple containing the expected output and the error value.
-
-        Returns
-        -------
-        list of float
-            A list of error values for each training iteration.
-
-        Notes
-        -----
-        - This method performs forward propagation to predict the output,
-          and backpropagation to adjust the weights and biases of the network.
-        - The learning rate `eta` is used to scale the adjustments to weights and biases.
-        """
-
         error_list: list[float] = []
 
         for inputs in data:
