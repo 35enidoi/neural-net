@@ -163,6 +163,7 @@ class NeuralNetwork:
               data: list[list[int]],
               answer_func: Callable[[list[int]], list[float]],
               ) -> list[float]:
+
         error_list: list[float] = []
 
         for inputs in data:
