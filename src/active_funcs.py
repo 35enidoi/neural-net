@@ -4,7 +4,7 @@ from math import exp, tanh, sin, cos, log
 __all__ = [
     "AbstractActivationAlgorithm", "AbstractActivationAlgorithmNoStatic",  # Abstracts
     "Identity", "Absolute",  # Linear-like
-    "Sigmoid", "Tanh",  # Logistic-like
+    "Sigmoid", "Tanh", "SoftSign",  # Logistic-like
     "Sin",  # Periodric
     "ReLU", "LReLU", "Swish", "ELU", "SoftPlus",  # ReLU-like
 ]
