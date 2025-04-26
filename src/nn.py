@@ -138,6 +138,11 @@ class NeuralNetwork:
             return [node.value for node in self.nodes[-1]]
 
     def _back_propagation(self, predict: list[float], real_answer: list[float]) -> None:
+        # デルタ値を初期化
+        for nodes in self.nodes:
+            for node in nodes:
+                node.delta_value_reset()
+
         # 出力層のバイアス、それにつながっているエッヂの重さ調整
         for pos, output_node in enumerate(self.nodes[-1]):
             diff = self.__loss_function.execute_derivative(predict[pos], real_answer[pos])
@@ -170,21 +175,11 @@ class NeuralNetwork:
             # 順伝搬(予測)
             ans = self.predict(*inputs)
 
-            # デルタ値を初期化
-            for nodes in self.nodes:
-                for node in nodes:
-                    node.delta_value_reset()
-
             # 教師の答えを持ってくる
             real_answer = answer_func(inputs)
 
             # エラー値追加
             error_list.append(self.__loss_function.execute(ans, real_answer))
-
-            # デルタ値を初期化
-            for nodes in self.nodes:
-                for node in nodes:
-                    node.delta_value_reset()
 
             # 誤差逆伝搬
             self._back_propagation(ans, real_answer)
