@@ -137,7 +137,7 @@ class NeuralNetwork:
             # 出力層の値をリスト化して返す
             return [node.value for node in self.nodes[-1]]
 
-    def _back_propagation(self, predict: list[float], real_answer: list[float]) -> None:
+    def _back_propagation(self, real_answer: list[float]) -> None:
         # デルタ値を初期化
         for nodes in self.nodes:
             for node in nodes:
@@ -145,7 +145,7 @@ class NeuralNetwork:
 
         # 出力層のバイアス、それにつながっているエッヂの重さ調整
         for pos, output_node in enumerate(self.nodes[-1]):
-            diff = self.__loss_function.execute_derivative(predict[pos], real_answer[pos])
+            diff = self.__loss_function.execute_derivative(self.nodes[-1][pos].value, real_answer[pos])
             # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
             output_node.delta_value = diff * self.__activate_funcs[-1].execute_derivative(output_node.value)
 
@@ -182,7 +182,7 @@ class NeuralNetwork:
             error_list.append(self.__loss_function.execute(ans, real_answer))
 
             # 誤差逆伝搬
-            self._back_propagation(ans, real_answer)
+            self._back_propagation(real_answer)
 
         return error_list
 
