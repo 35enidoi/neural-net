@@ -3,7 +3,7 @@ from random import randint
 from _util import show_error, add_src_to_path
 add_src_to_path()
 
-from neuralnet.nn import NeuralNetwork
+from neuralnet.nn import FullyConnectedNeuralNetwork as FCNN
 from neuralnet.active_funcs import Tanh, Identity  # tanhを活性化関数として使う
 
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # 出力層は恒等関数(f(x)=x、すなわちy=x)(Identity)
     # input: 2 -> 1 middle -> output: 1
     # 1 middle layer (8,)
-    nn = NeuralNetwork([2, 8, 1], activate_funcs=[Tanh, Identity])
+    nn = FCNN([2, 8, 1], activate_funcs=[Tanh, Identity])
 
     # training
     train_num = 10000

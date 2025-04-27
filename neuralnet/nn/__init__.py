@@ -1,5 +1,5 @@
-from neuralnet.nn.fullyconnectednn import NeuralNetwork
+from neuralnet.nn.fullyconnectednn import FullyConnectedNeuralNetwork
 
 __all__ = [
-    "NeuralNetwork"  # FCN (FullyConnectedNeuralNetwork)
+    "FullyConnectedNeuralNetwork"  # FCNN (FullyConnectedNeuralNetwork) (全結合ネット)
 ]

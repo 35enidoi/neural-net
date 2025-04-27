@@ -3,7 +3,7 @@ from random import randint
 from _util import show_error, add_src_to_path
 add_src_to_path()
 
-from neuralnet.nn import NeuralNetwork
+from neuralnet.nn import FullyConnectedNeuralNetwork as FCNN
 
 
 def and_error_funtion(input: list[bool]) -> list[float]:
@@ -19,7 +19,7 @@ def create_training_input(length: int) -> tuple[bool, bool]:
 if __name__ == "__main__":
     # input: 2 -> output: 1
     # no middle layer
-    nn = NeuralNetwork([2, 1])
+    nn = FCNN([2, 1])
 
     # training
     train_num = 50000

@@ -13,7 +13,7 @@ from neuralnet.loss_funcs import MeanSquaredError
 from neuralnet._exception_messages import NNExceptionMessages
 
 
-__all__ = ["NeuralNetwork", "NeuralNode"]
+__all__ = ["FullyConnectedNeuralNetwork", "NeuralNode"]
 
 
 class NeuralNode:
@@ -36,7 +36,7 @@ class NeuralNode:
         self.delta_value = 0
 
 
-class NeuralNetwork:
+class FullyConnectedNeuralNetwork:
     def __init__(self,
                  node_nums: list[int],
                  learn_rate: float = 0.1,

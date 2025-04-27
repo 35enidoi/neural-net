@@ -8,7 +8,7 @@ except ImportError:
 from _util import show_error, add_src_to_path
 add_src_to_path()
 
-from neuralnet.nn import NeuralNetwork
+from neuralnet.nn import FullyConnectedNeuralNetwork as FCNN
 from neuralnet.active_funcs import Identity
 from neuralnet.loss_funcs import HuberLoss
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # input: 2 -> output: 1
     # no middle layer
     # activate function: Identity(恒等関数)
-    nn = NeuralNetwork([1, 1], learn_rate=0.01, activate_funcs=[Identity], loss_func=HuberLoss())
+    nn = FCNN([1, 1], learn_rate=0.01, activate_funcs=[Identity], loss_func=HuberLoss())
 
     # Training
     train_num = 1000
