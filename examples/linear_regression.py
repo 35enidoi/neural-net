@@ -8,9 +8,9 @@ except ImportError:
 from _util import show_error, add_src_to_path
 add_src_to_path()
 
-from src.nn import NeuralNetwork
-from src.active_funcs import Identity
-from src.loss_funcs import HuberLoss
+from neuralnet.nn import NeuralNetwork
+from neuralnet.active_funcs import Identity
+from neuralnet.loss_funcs import HuberLoss
 
 
 # このファイル全部copilotに書いてもらった

@@ -3,8 +3,8 @@ from random import randint
 from _util import show_error, add_src_to_path
 add_src_to_path()
 
-from src.nn import NeuralNetwork
-from src.active_funcs import Tanh, Identity  # tanhを活性化関数として使う
+from neuralnet.nn import NeuralNetwork
+from neuralnet.active_funcs import Tanh, Identity  # tanhを活性化関数として使う
 
 
 def is_error_funtion(input: list[bool]) -> list[float]:

@@ -4,9 +4,9 @@ from inspect import isclass
 from random import uniform
 from typing import Callable, Optional
 
-from src.loss_funcs import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic, MeanSquaredError
-from src.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic, Identity
-from src._exception_messages import NNExceptionMessages
+from neuralnet.loss_funcs import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic, MeanSquaredError
+from neuralnet.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic, Identity
+from neuralnet._exception_messages import NNExceptionMessages
 
 
 __all__ = ["NeuralNetwork", "NeuralNode"]
