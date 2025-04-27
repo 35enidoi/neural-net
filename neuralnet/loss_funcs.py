@@ -1,27 +1,6 @@
-from abc import ABC, abstractmethod
 from math import tanh, cosh, log
 
-
-class AbstractLossAlgorithm(ABC):
-    @staticmethod
-    @abstractmethod
-    def execute(predict: list[float], answer: list[float]) -> float:
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def execute_derivative(predict: float, answer: float) -> float:
-        pass
-
-
-class AbstractLossAlgorithmNoStatic(ABC):
-    @abstractmethod
-    def execute(self, predict: list[float], answer: list[float]) -> float:
-        pass
-
-    @abstractmethod
-    def execute_derivative(self, predict: float, answer: float) -> float:
-        pass
+from neuralnet.abstracts import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic
 
 
 class MeanSquaredError(AbstractLossAlgorithm):

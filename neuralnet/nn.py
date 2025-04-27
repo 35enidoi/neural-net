@@ -4,8 +4,12 @@ from inspect import isclass
 from random import uniform
 from typing import Callable, Optional
 
-from neuralnet.loss_funcs import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic, MeanSquaredError
-from neuralnet.active_funcs import Sigmoid, AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic, Identity
+from neuralnet.abstracts import (
+    AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic,
+    AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic
+)
+from neuralnet.active_funcs import Sigmoid, Identity
+from neuralnet.loss_funcs import MeanSquaredError
 from neuralnet._exception_messages import NNExceptionMessages
 
 

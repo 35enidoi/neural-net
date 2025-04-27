@@ -1,35 +1,13 @@
-from abc import ABC, abstractmethod
 from math import exp, tanh, sin, cos, log
 
+from neuralnet.abstracts import AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic
+
 __all__ = [
-    "AbstractActivationAlgorithm", "AbstractActivationAlgorithmNoStatic",  # Abstracts
     "Identity", "Absolute",  # Linear-like
     "Sigmoid", "Tanh", "SoftSign",  # Logistic-like
     "Sin",  # Periodric
     "ReLU", "LReLU", "Swish", "ELU", "SoftPlus",  # ReLU-like
 ]
-
-
-class AbstractActivationAlgorithm(ABC):
-    @staticmethod
-    @abstractmethod
-    def execute(x: float) -> float:
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def execute_derivative(x: float) -> float:
-        pass
-
-
-class AbstractActivationAlgorithmNoStatic(ABC):
-    @abstractmethod
-    def execute(self, x: float) -> float:
-        pass
-
-    @abstractmethod
-    def execute_derivative(self, x: float) -> float:
-        pass
 
 
 # Linear-like functions
