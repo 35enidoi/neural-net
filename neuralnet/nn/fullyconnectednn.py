@@ -1,5 +1,4 @@
 
-from inspect import isclass
 from typing import Callable, Optional
 
 from neuralnet.abstracts import (
@@ -10,6 +9,7 @@ from neuralnet.active_funcs import Sigmoid, Identity
 from neuralnet.loss_funcs import MeanSquaredError
 from neuralnet._exception_messages import NNExceptionMessages
 from neuralnet.nn.neuralnode import NeuralNode
+from neuralnet.nn.util import active_func_check, loss_func_check
 
 
 __all__ = ["FullyConnectedNeuralNetwork",]
@@ -66,14 +66,7 @@ class FullyConnectedNeuralNetwork:
             raise ValueError(NNExceptionMessages.NN_ACV_LAY_NOM)
 
         for activate_func in x:
-            if isclass(activate_func):
-                # クラスの時(staticな方じゃないとだめ)
-                if not issubclass(activate_func, AbstractActivationAlgorithm):
-                    raise ValueError(NNExceptionMessages.NN_ACV_FUNC_NOM)
-            else:
-                # インスタンスの時(どっちでもいい)
-                if not issubclass(type(activate_func), AbstractActivationAlgorithm | AbstractActivationAlgorithmNoStatic):
-                    raise ValueError(NNExceptionMessages.NN_ACV_FUNC_INSTANCE_NOM)
+            active_func_check(activate_func)
 
         # ここまでこれたなら確認完了
         self.__activate_funcs = x
@@ -84,15 +77,10 @@ class FullyConnectedNeuralNetwork:
 
     @loss_function.setter
     def loss_function(self, x):
-        if isclass(x):
-            if not issubclass(x, AbstractLossAlgorithm):
-                raise ValueError()
+        if loss_func_check(x):
+            self.__loss_function = x
         else:
-            if not issubclass(type(x), AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic):
-                raise ValueError()
-
-        # ここまでこれたなら確認完了
-        self.__loss_function: AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic = x
+            raise ValueError(NNExceptionMessages.NN_LOSS_FUNC_NOM)
 
     def predict(self, *inputs: int) -> list[float]:
         if len(inputs) != len(self.nodes[0]):
