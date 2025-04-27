@@ -1,7 +1,5 @@
-from __future__ import annotations
 
 from inspect import isclass
-from random import uniform
 from typing import Callable, Optional
 
 from neuralnet.abstracts import (
@@ -11,29 +9,10 @@ from neuralnet.abstracts import (
 from neuralnet.active_funcs import Sigmoid, Identity
 from neuralnet.loss_funcs import MeanSquaredError
 from neuralnet._exception_messages import NNExceptionMessages
+from neuralnet.nn.neuralnode import NeuralNode
 
 
-__all__ = ["FullyConnectedNeuralNetwork", "NeuralNode"]
-
-
-class NeuralNode:
-    def __init__(self, layer: int) -> None:
-        self.layer = layer
-        self.bias = uniform(-1, 1)
-        self.delta_value: float = 0
-        self.value: float = 0
-        self.pairent: list[list[NeuralNode, float]] = []
-
-    def pairlink(self, pair_node: NeuralNode) -> None:
-        self.pairent.append([pair_node, uniform(-1, 1)])
-
-    def value_reset(self) -> None:
-        """initialize the value to zero."""
-        self.value = 0
-
-    def delta_value_reset(self) -> None:
-        """initialize the delta value to zero."""
-        self.delta_value = 0
+__all__ = ["FullyConnectedNeuralNetwork",]
 
 
 class FullyConnectedNeuralNetwork:
