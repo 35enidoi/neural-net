@@ -2,6 +2,11 @@ from math import tanh, cosh, log
 
 from neuralnet.abstracts import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic
 
+__all__ = [
+    "MeanSquaredError", "MeanAbsoluteError",
+    "HuberLoss", "LogCoshLoss"
+]
+
 
 class MeanSquaredError(AbstractLossAlgorithm):
     """平均二乗誤差"""
