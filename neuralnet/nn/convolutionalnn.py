@@ -96,3 +96,11 @@ class ConvolutionalNeuralNetwork:
         output = [[self.__activate_func.execute(i) for i in row] for row in input_data]
 
         return output
+
+
+def flat_3d_to_2d(input_data: list[list[list[float]]]) -> list[list[float]]:
+    return [[i for row in data for i in row] for data in input_data]
+
+
+def flat_2d_to_1d(input_data: list[list[float]]) -> list[float]:
+    return [i for row in input_data for i in row]
