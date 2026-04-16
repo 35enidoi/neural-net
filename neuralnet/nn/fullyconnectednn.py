@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 from neuralnet.abstracts import (
     AbstractActivationAlgorithm, AbstractActivationAlgorithmNoStatic,
-    AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic
+    AbstractLossAlgorithm
 )
 from neuralnet.active_funcs import Sigmoid, Identity
 from neuralnet.loss_funcs import MeanSquaredError
@@ -16,12 +16,13 @@ __all__ = ["FullyConnectedNeuralNetwork",]
 
 
 class FullyConnectedNeuralNetwork:
-    def __init__(self,
-                 node_nums: list[int],
-                 learn_rate: float = 0.1,
-                 activate_funcs: Optional[list[AbstractActivationAlgorithmNoStatic | AbstractActivationAlgorithm]] = None,
-                 loss_func: AbstractLossAlgorithm | AbstractLossAlgorithmNoStatic = MeanSquaredError
-                 ) -> None:
+    def __init__(
+            self,
+            node_nums: list[int],
+            learn_rate: float = 0.1,
+            activate_funcs: Optional[list[AbstractActivationAlgorithmNoStatic | AbstractActivationAlgorithm]] = None,
+            loss_func: AbstractLossAlgorithm = MeanSquaredError(),
+            ) -> None:
         # 学習率(eta)
         self.eta = learn_rate
 
@@ -48,7 +49,10 @@ class FullyConnectedNeuralNetwork:
                 self.__activate_funcs.append(Identity)
 
         # 損失関数のチェック
-        self.__loss_function = loss_func
+        if isinstance(loss_func, AbstractLossAlgorithm):
+            self.__loss_function = loss_func
+        else:
+            raise ValueError(NNExceptionMessages.NN_LOSS_FUNC_NOM)
 
         self.nodes = [[NeuralNode(layer) for _ in range(num)] for layer, num in enumerate(node_nums)]
         for layer_pos in range(self.layer - 1):
@@ -94,16 +98,16 @@ class FullyConnectedNeuralNetwork:
             # 入力層に入力値代入&次のノードへ伝搬
             for node, value in zip(self.nodes[0], inputs):
                 node.value = value
-                for next_node, weight in node.pairent:
-                    next_node.value += node.value * weight
+                for conn in node.pairent:
+                    conn.node.value += node.value * conn.weight
 
             # 入力層以降へ順番に伝搬
             for nodes in self.nodes[1:]:
                 for node in nodes:
                     # __activate_funcsでnode.layer - 1なのはactivate_funcsは入力層を含めないから(1レイヤー分ずれている)
                     node.value = self.__activate_funcs[node.layer - 1].execute(node.value + node.bias)
-                    for next_node, weight in node.pairent:
-                        next_node.value += node.value * weight
+                    for conn in node.pairent:
+                        conn.node.value += node.value * conn.weight
 
             # 出力層の値をリスト化して返す
             return [node.value for node in self.nodes[-1]]
@@ -122,18 +126,18 @@ class FullyConnectedNeuralNetwork:
 
             output_node.bias -= self.eta * output_node.delta_value
             for node in self.nodes[-2]:
-                node.pairent[pos][1] -= self.eta * output_node.delta_value * node.value
+                node.pairent[pos].weight -= self.eta * output_node.delta_value * node.value
 
         # 入力層と出力層を除いた中間層についてバイアスとエッヂの重さ調整
         for nodes in reversed(self.nodes[1:-1]):
             for pos, node in enumerate(nodes):
-                error_sums = sum(next_node.delta_value * weight for next_node, weight in node.pairent)
+                error_sums = sum(conn.node.delta_value * conn.weight for conn in node.pairent)
                 # node.layer - 1の部分は上を参照
                 node.delta_value = error_sums * self.__activate_funcs[node.layer - 1].execute_derivative(node.value)
 
                 node.bias -= self.eta * node.delta_value
                 for before_node in self.nodes[node.layer - 1]:
-                    before_node.pairent[pos][1] -= self.eta * node.delta_value * node.value
+                    before_node.pairent[pos].weight -= self.eta * node.delta_value * node.value
 
     def train(self,
               data: list[list[int]],
@@ -188,7 +192,7 @@ class FullyConnectedNeuralNetwork:
 
                 pairs = []
                 for pari_pos, pairent in enumerate(node.pairent):
-                    pairs.append(f"{_node_name(pari_pos, pairent[0].layer)}={pairent[1]:.3f}")
+                    pairs.append(f"{_node_name(pari_pos, pairent.node.layer)}={pairent.weight:.3f}")
 
                 return_str += node_str_format.format(
                     name=_node_name(pos, layer),

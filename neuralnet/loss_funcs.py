@@ -1,6 +1,6 @@
 from math import tanh, cosh, log
 
-from neuralnet.abstracts import AbstractLossAlgorithm, AbstractLossAlgorithmNoStatic
+from neuralnet.abstracts import AbstractLossAlgorithm
 
 __all__ = [
     "MeanSquaredError", "MeanAbsoluteError",
@@ -10,28 +10,24 @@ __all__ = [
 
 class MeanSquaredError(AbstractLossAlgorithm):
     """平均二乗誤差"""
-    @staticmethod
-    def execute(predict, answer):
+    def execute(self, predict, answer):
         error = 0
         for a, b in zip(predict, answer):
             error += (a - b) ** 2
 
         return error / len(predict)
 
-    @staticmethod
-    def execute_derivative(predict, answer):
+    def execute_derivative(self, predict, answer):
         return 2 * (predict - answer)
 
 
 class MeanAbsoluteError(AbstractLossAlgorithm):
     """平均絶対誤差"""
-    @staticmethod
-    def execute(predict, answer):
+    def execute(self, predict, answer):
         error = sum(abs(p - a) for p, a in zip(predict, answer))
         return error / len(predict)
 
-    @staticmethod
-    def execute_derivative(predict, answer):
+    def execute_derivative(self, predict, answer):
         if predict > answer:
             return 1
         elif predict < answer:
@@ -41,7 +37,7 @@ class MeanAbsoluteError(AbstractLossAlgorithm):
             return 0
 
 
-class HuberLoss(AbstractLossAlgorithmNoStatic):
+class HuberLoss(AbstractLossAlgorithm):
     """フーバー損失"""
     def __init__(self, delta: float = 1.0):
         self.delta = delta
